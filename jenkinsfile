@@ -14,22 +14,31 @@ node {
         }
 
         stage('Test') {
-            sh '''
-            echo "Running JUnit tests for File-Encrypter..."
-            cd "Password Protection"
+    sh '''
+    echo "Running JUnit tests for File-Encrypter..."
+    cd "Password Protection"
 
-            if [ ! -f junit-platform-console-standalone.jar ]; then
-                echo "Downloading JUnit..."
-                curl -L -o junit-platform-console-standalone.jar \
-                https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar
-            fi
+    echo "Removing old corrupted JUnit jar if exists..."
+    rm -f junit-platform-console-standalone.jar
 
-            echo "Running tests..."
-            java -jar junit-platform-console-standalone.jar \
-            -cp build \
-            --scan-class-path
-            '''
-        }
+    echo "Downloading correct JUnit jar..."
+    curl -L -o junit-platform-console-standalone.jar \
+    https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar
+
+    echo "Checking file size..."
+    ls -lh junit-platform-console-standalone.jar
+
+    mkdir -p test-build
+
+    echo "Compiling tests..."
+    javac -cp junit-platform-console-standalone.jar:build -d test-build src/*.java
+
+    echo "Running tests..."
+    java -jar junit-platform-console-standalone.jar \
+    -cp build:test-build \
+    --scan-class-path
+    '''
+}
 
         stage('Deploy') {
             echo "Deploy stage (add deployment steps if needed)"
