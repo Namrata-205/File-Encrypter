@@ -1,19 +1,10 @@
-stage('Clean Workspace') {
-    sh '''
-    echo "Cleaning workspace..."
-    rm -rf Password\\ Protection/build
-    rm -rf Password\\ Protection/test-build
-    rm -f Password\\ Protection/junit-platform-console-standalone.jar
-    '''
-}
-
 node {
 
     try {
 
         stage('Clean Workspace') {
             sh '''
-            echo "Cleaning old build and test artifacts..."
+            echo "Cleaning old build artifacts..."
             rm -rf Password\\ Protection/build
             rm -rf Password\\ Protection/test-build
             rm -f Password\\ Protection/junit-platform-console-standalone.jar
@@ -35,7 +26,7 @@ node {
             echo "===== TEST STAGE ====="
             cd "Password Protection"
 
-            echo "Downloading JUnit Platform Console..."
+            echo "Downloading correct JUnit jar..."
             curl -L -o junit-platform-console-standalone.jar \
             https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar
 
@@ -43,7 +34,6 @@ node {
             ls -lh junit-platform-console-standalone.jar
 
             mkdir -p test-build
-
             echo "Compiling test files..."
             javac -cp junit-platform-console-standalone.jar:build -d test-build src/*.java
 
