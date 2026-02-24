@@ -1,48 +1,61 @@
 node {
+
     try {
+
+        stage('Checkout') {
+            echo "Checking out source code..."
+        }
 
         stage('Build') {
             sh '''
-            echo "Building Java project..."
-            echo "Listing workspace contents:"
-            ls
+            echo "===== BUILD STAGE ====="
             cd "Password Protection"
+
             mkdir -p build
             javac -d build src/*.java
-            echo "Build successful"
+
+            echo "Build completed successfully."
             '''
         }
 
         stage('Test') {
-    sh '''
-    echo "Running JUnit tests for File-Encrypter..."
-    cd "Password Protection"
+            sh '''
+            echo "===== TEST STAGE ====="
+            cd "Password Protection"
 
-    echo "Removing old corrupted JUnit jar if exists..."
-    rm -f junit-platform-console-standalone.jar
+            # Remove old/corrupted jar if exists
+            rm -f junit-platform-console-standalone.jar
 
-    echo "Downloading correct JUnit jar..."
-    curl -L -o junit-platform-console-standalone.jar \
-    https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar
+            echo "Downloading JUnit Platform Console..."
+            curl -L -o junit-platform-console-standalone.jar \
+            https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar
 
-    echo "Checking file size..."
-    ls -lh junit-platform-console-standalone.jar
+            echo "Verifying download..."
+            ls -lh junit-platform-console-standalone.jar
 
-    mkdir -p test-build
+            if [ ! -s junit-platform-console-standalone.jar ]; then
+                echo "JUnit jar download failed!"
+                exit 1
+            fi
 
-    echo "Compiling tests..."
-    javac -cp junit-platform-console-standalone.jar:build -d test-build src/*.java
+            mkdir -p test-build
 
-    echo "Running tests..."
-    java -jar junit-platform-console-standalone.jar \
-    -cp build:test-build \
-    --scan-class-path
-    '''
-}
+            echo "Compiling test files..."
+            javac -cp junit-platform-console-standalone.jar:build -d test-build src/*.java
+
+            echo "Running tests..."
+            java -jar junit-platform-console-standalone.jar \
+            -cp build:test-build \
+            --scan-class-path
+            '''
+        }
 
         stage('Deploy') {
-            echo "Deploy stage (add deployment steps if needed)"
+            echo "===== DEPLOY STAGE ====="
+            echo "Deployment step placeholder"
         }
+
+        echo "Pipeline completed successfully!"
 
     } catch (Exception e) {
         echo "Pipeline failed!"
