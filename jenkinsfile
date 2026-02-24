@@ -1,3 +1,12 @@
+stage('Clean Workspace') {
+    sh '''
+    echo "Cleaning workspace..."
+    rm -rf Password\\ Protection/build
+    rm -rf Password\\ Protection/test-build
+    rm -f Password\\ Protection/junit-platform-console-standalone.jar
+    '''
+}
+
 node {
 
     try {
